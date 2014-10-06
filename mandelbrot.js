@@ -92,7 +92,7 @@ function mandelbrotAlgorithm(Cr, Ci, escapeRadius, iterations)
 /*
  * Default Mandelbrot canvas size
  */
-var MANDELBROT_CANVAS_SIZE = {top_left: {x: -2, y: 1}, bottom_right: {x: 1.5, y: -1.5}};
+var MANDELBROT_CANVAS_SIZE = {top_left: {x: -2.5, y: 1.25}, bottom_right: {x: 1, y: -1.25}};
 
 
 /*
