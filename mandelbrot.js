@@ -22,6 +22,7 @@
  * Global variables:
  */
 var renderId = 0; // To zoom before current render is finished
+window.isDrawing = false;
 
 
 /*
@@ -93,6 +94,10 @@ function mandelbrotAlgorithm(Cr, Ci, escapeRadius, iterations)
  * Default Mandelbrot canvas size
  */
 var MANDELBROT_CANVAS_SIZE = {top_left: {x: -2.5, y: 1.25}, bottom_right: {x: 1, y: -1.25}};
+var MANDELBROT_X_OFFSET = 2.5;
+var MANDELBROT_Y_OFFSET = 1.25;
+var MANDELBROT_X_RANGE = 3.5;
+var MANDELBROT_Y_RANGE = 2.5;
 
 
 /*
@@ -185,6 +190,13 @@ function draw(canvas, xRange, yRange, pickColor, fractalAlgorithm)
   if (!canvas || !xRange || !yRange || !pickColor || !fractalAlgorithm){
     return 0;
   }
+  
+  if (window.isDrawing) {
+    setTimeout(function(){draw(canvas, xRange, yRange, pickColor, fractalAlgorithm);}, 100);
+    return 0;
+  }
+  
+  window.isDrawing = true;
 
   var ctx = canvas.getContext('2d');
   var img = ctx.createImageData(canvas.width, 1);
@@ -237,7 +249,7 @@ function draw(canvas, xRange, yRange, pickColor, fractalAlgorithm)
 
     for ( var x=0; x<canvas.width; ++x, Cr += Cr_step ) {
       var p = fractalAlgorithm(Cr, Ci, escapeRadius, steps);
-      var color = pickColor(steps, p[0], p[1], p[2]);
+      var color = pickColor(steps, p[0], p[1], p[2], Ci, Cr);
       img.data[off++] = color[0];
       img.data[off++] = color[1];
       img.data[off++] = color[2];
@@ -324,6 +336,9 @@ function draw(canvas, xRange, yRange, pickColor, fractalAlgorithm)
         } else
           scanline();
       }
+      else{
+        window.isDrawing = false;
+      }
     };
 
     // Disallow redrawing while rendering
@@ -350,6 +365,23 @@ function smoothColor(steps, n, Tr, Ti)
 }
 
 var interiorColor = [0, 0, 0, 255];
+
+function pickColorHSV1Gradient(steps, n, Tr, Ti, Cr, Ci)
+{
+  if ( n == steps ) // converged?
+    return interiorColor;
+
+  var v = smoothColor(steps, n, Tr, Ti);
+  var c = hsv_to_rgb(360.0*v/steps, 1.0, 10.0*v/steps);
+  c[0] = (c[0] * (Ci + MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE) + 
+    (c[2] * (MANDELBROT_X_RANGE - Ci - MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE);
+  c[2] = (c[2] * (Ci + MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE) + 
+    (c[0] * (MANDELBROT_X_RANGE - Ci - MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE);
+  c.push(255); // alpha
+  //c[1] = c[1] * Math.sqrt((Ci + MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE);
+  //c[3] = c[3] * Math.sqrt((Ci + MANDELBROT_Y_OFFSET) / MANDELBROT_Y_RANGE)
+  return c;
+}
 
 function pickColorHSV1(steps, n, Tr, Ti)
 {
