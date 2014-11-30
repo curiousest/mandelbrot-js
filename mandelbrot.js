@@ -373,10 +373,23 @@ function pickColorHSV1Gradient(steps, n, Tr, Ti, Cr, Ci)
 
   var v = smoothColor(steps, n, Tr, Ti);
   var c = hsv_to_rgb(360.0*v/steps, 1.0, 10.0*v/steps);
+  // gradient of background pixels along x-axis
   c[0] = (c[0] * (Ci + MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE) + 
     (c[2] * (MANDELBROT_X_RANGE - Ci - MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE);
   c[2] = (c[2] * (Ci + MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE) + 
     (c[0] * (MANDELBROT_X_RANGE - Ci - MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE);
+  // gradient of intensely colored pixels along y-axis
+  c[1] = (c[1] * (Cr + MANDELBROT_Y_OFFSET) / MANDELBROT_Y_RANGE) + 
+    (c[2] * (MANDELBROT_Y_RANGE - Cr - MANDELBROT_Y_OFFSET) / MANDELBROT_Y_RANGE);
+  c[2] = (c[2] * (Cr + MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE) + 
+    (c[1] * (MANDELBROT_Y_RANGE - Cr - MANDELBROT_Y_OFFSET) / MANDELBROT_Y_RANGE);
+    
+  if (c[0] + c[1] + c[2] > 500){
+    c[0] = c[0] * 0.6;
+    c[1] = c[1] * 0.6;
+    c[2] = c[2] * 0.6;
+  }
+  
   c.push(255); // alpha
   //c[1] = c[1] * Math.sqrt((Ci + MANDELBROT_X_OFFSET) / MANDELBROT_X_RANGE);
   //c[3] = c[3] * Math.sqrt((Ci + MANDELBROT_Y_OFFSET) / MANDELBROT_Y_RANGE)
