@@ -90,15 +90,54 @@ function mandelbrotAlgorithm(Cr, Ci, escapeRadius, iterations)
   return [n, Tr, Ti];
 }
 
+function julietAlgorithm(Zr, Zi, escapeRadius, iterations)
+{
+  var Cr = -0.8;
+  var Ci = 0.156;
+  var Tr = Zr;
+  var Ti = Zi;
+  var n  = 0;
+
+  for ( ; n<iterations && (Tr+Ti)<=escapeRadius; ++n ) {
+    Zi = 2 * Zr * Zi + Ci;
+    Zr = Tr - Ti + Cr;
+    Tr = Zr * Zr;
+    Ti = Zi * Zi;
+  }
+
+  /*
+   * Four more iterations to decrease error term;
+   * see http://linas.org/art-gallery/escape/escape.html
+   */
+  for ( var e=0; e<4; ++e ) {
+    Zi = 2 * Zr * Zi + Ci;
+    Zr = Tr - Ti + Cr;
+    Tr = Zr * Zr;
+    Ti = Zi * Zi;
+  }
+
+  return [n, Tr, Ti];
+}
+
 /*
  * Default Mandelbrot canvas size
  */
 var MANDELBROT_CANVAS_SIZE = {top_left: {x: -2.5, y: 1.25}, bottom_right: {x: 1, y: -1.25}};
+var MANDELBROT_CANVAS_DIAGONAL = 4.3;
 var MANDELBROT_X_OFFSET = 2.5;
 var MANDELBROT_Y_OFFSET = 1.25;
 var MANDELBROT_X_RANGE = 3.5;
 var MANDELBROT_Y_RANGE = 2.5;
 
+/*
+ * Default Mandelbrot canvas size
+ */
+var JULIET_CANVAS_SIZE = {top_left: {x: -1, y: 1}, bottom_right: {x: 2, y: -2}};
+var JULIET_CANVAS_DIAGONAL = 4.3;
+var JULIET_X_OFFSET = 1;
+var JULIET_Y_OFFSET = 1;
+var JULIET_X_RANGE = 3;
+var JULIET_Y_RANGE = 3;
 
 /*
  * Return number with metric units
